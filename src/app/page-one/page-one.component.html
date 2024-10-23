@@ -1,0 +1,43 @@
+<b>Page One</b>
+<mat-card class="chat-container">
+  <mat-card-header>
+    <mat-card-title>Chat (Page One)</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="chat-messages">
+    @for (message of messages; track message.time) {
+    <div
+      class="message"
+      [ngClass]="{
+        'user-message': message.source === 'page-one',
+        'other-message': message.source === 'page-two'
+      }"
+    >
+      <div class="message-content">{{ message.text }}</div>
+      <div class="message-timestamp">
+        {{ message.time | date : "short" }}
+      </div>
+    </div>
+    } @if (isOtherTyping) {
+    <div class="typing-indicator">Page Two is typing...</div>
+    }
+  </mat-card-content>
+  <mat-card-actions class="chat-input">
+    <mat-form-field appearance="outline" class="full-width">
+      <input
+        matInput
+        [(ngModel)]="newMessage"
+        placeholder="Type a message..."
+        (keyup.enter)="sendMessage()"
+        (ngModelChange)="onTyping()"
+      />
+    </mat-form-field>
+    <button
+      mat-fab
+      color="primary"
+      (click)="sendMessage()"
+      [disabled]="!newMessage.trim()"
+    >
+      <mat-icon>send</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>
