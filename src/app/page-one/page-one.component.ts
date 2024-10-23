@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Message } from '../message.interface';
 import { SharedService } from '../shared.service';
-import { debounceTime, Subscription, Subject } from 'rxjs';
+import { debounceTime, Subscription, Subject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-page-one',
@@ -33,21 +33,26 @@ export class PageOneComponent implements OnInit, OnDestroy {
   private typingSubscription$!: Subscription;
   private typingSubject$ = new Subject<void>();
 
-  constructor(private sharedService: SharedService, private ngZone: NgZone) {}
-
-  ngOnInit() {
-    this.subscription$ = this.sharedService.messages$.subscribe((messages) => {
-      this.ngZone.run(() => {
-        this.messages = messages;
-      });
+  constructor(private sharedService: SharedService) {
+    sharedService.messages$.subscribe((msgs) => {
+      this.messages = msgs;
     });
 
+    sharedService.isTyping$('page-one').subscribe((isTyping) => {
+      console.log("I'm Typing?", isTyping);
+    });
+
+    sharedService.isTyping$('page-two').subscribe((isTyping) => {
+      this.isOtherTyping = isTyping;
+      console.log('Is Other Typing?', isTyping);
+    });
+  }
+
+  ngOnInit() {
     this.typingSubscription$ = this.sharedService
       .isTyping$('page-two')
       .subscribe((isTyping) => {
-        this.ngZone.run(() => {
-          this.isOtherTyping = isTyping;
-        });
+        this.isOtherTyping = isTyping;
       });
 
     this.typingSubject$.pipe(debounceTime(300)).subscribe(() => {

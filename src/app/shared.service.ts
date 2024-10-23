@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Message } from './message.interface';
 
 @Injectable({
@@ -7,6 +7,7 @@ import { Message } from './message.interface';
 })
 export class SharedService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
+  public messages$: Observable<Message[]> = this.messagesSubject.asObservable();
   private typingSubjects: { [key: string]: Subject<boolean> } = {
     'page-one': new Subject<boolean>(),
     'page-two': new Subject<boolean>(),
@@ -32,7 +33,7 @@ export class SharedService {
     this.typingSubjects[source].next(isTyping);
   }
 
-  isTyping$(source: string) {
+  public isTyping$(source: string): Observable<boolean> {
     return this.typingSubjects[source].asObservable();
   }
 }

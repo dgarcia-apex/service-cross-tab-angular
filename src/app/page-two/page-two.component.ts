@@ -41,27 +41,26 @@ export class PageTwoComponent implements OnInit, OnDestroy {
   private typingSubscription$!: Subscription;
   private typingSubject$ = new Subject<void>();
 
-  constructor(
-    private sharedService: SharedService,
-    private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
-    this.subscription$ = this.sharedService.messages$.subscribe((messages) => {
-      this.ngZone.run(() => {
-        this.messages = messages;
-        this.cdr.detectChanges();
-      });
+  constructor(private sharedService: SharedService) {
+    sharedService.messages$.subscribe((msgs) => {
+      this.messages = msgs;
     });
 
+    sharedService.isTyping$('page-one').subscribe((isTyping) => {
+      console.log("I'm Typing?", isTyping);
+    });
+
+    sharedService.isTyping$('page-two').subscribe((isTyping) => {
+      this.isOtherTyping = isTyping;
+      console.log('Is Other Typing?', isTyping);
+    });
+  }
+
+  ngOnInit() {
     this.typingSubscription$ = this.sharedService
       .isTyping$('page-one')
       .subscribe((isTyping) => {
-        this.ngZone.run(() => {
-          this.isOtherTyping = isTyping;
-          this.cdr.detectChanges();
-        });
+        this.isOtherTyping = isTyping;
       });
 
     this.typingSubject$.pipe(debounceTime(300)).subscribe(() => {
